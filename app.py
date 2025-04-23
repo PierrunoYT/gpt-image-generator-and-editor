@@ -10,7 +10,14 @@ load_dotenv()
 app = Flask(__name__)
 
 # Initialize OpenAI client
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+try:
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+except TypeError:
+    # Handle older versions of the OpenAI library that might require different initialization
+    client = OpenAI(
+        api_key=os.getenv("OPENAI_API_KEY"),
+        base_url="https://api.openai.com/v1"
+    )
 
 @app.route("/")
 def index():
