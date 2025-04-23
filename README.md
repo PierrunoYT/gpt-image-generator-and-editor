@@ -10,8 +10,11 @@ A web interface for OpenAI's image generation capabilities, including image gene
   - Generate new images using multiple reference images
 - **Customization Options**:
   - Model: GPT Image (gpt-image-1)
-  - Image size (square, portrait, landscape)
-  - Quality settings (low, medium, high)
+  - Image size selection: 
+    - 1024x1024 (Square)
+    - 1024x1536 (Portrait)
+    - 1536x1024 (Landscape)
+  - Quality settings (auto, low, medium, high)
   - Background transparency support
 
 ## Setup

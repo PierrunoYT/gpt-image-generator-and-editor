@@ -52,6 +52,8 @@ def edit_image():
     try:
         prompt = request.form["prompt"]
         model = request.form.get("model", "gpt-image-1")
+        size = request.form.get("size", "1024x1024")
+        quality = request.form.get("quality", "auto")
         
         image_file = request.files["image"]
         mask_file = request.files.get("mask")
@@ -73,6 +75,8 @@ def edit_image():
                     image=img_file,
                     mask=mask_file,
                     prompt=prompt,
+                    size=size,
+                    quality=quality,
                     response_format="b64_json"
                 )
             
@@ -98,6 +102,8 @@ def edit_image():
                     model=model,
                     image=image_files,
                     prompt=prompt,
+                    size=size,
+                    quality=quality,
                     response_format="b64_json"
                 )
             finally:

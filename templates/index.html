@@ -100,10 +100,27 @@
                     </div>
                     
                     <div class="row mb-3">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label for="edit-model" class="form-label">Model</label>
                             <select class="form-select" id="edit-model" name="model">
                                 <option value="gpt-image-1" selected>GPT Image</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="edit-size" class="form-label">Output Size</label>
+                            <select class="form-select" id="edit-size" name="size">
+                                <option value="1024x1024" selected>1024x1024 (Square)</option>
+                                <option value="1024x1536">1024x1536 (Portrait)</option>
+                                <option value="1536x1024">1536x1024 (Landscape)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="edit-quality" class="form-label">Quality</label>
+                            <select class="form-select" id="edit-quality" name="quality">
+                                <option value="auto" selected>Auto</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
                             </select>
                         </div>
                     </div>
