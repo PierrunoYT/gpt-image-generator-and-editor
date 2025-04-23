@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAI Image Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">OpenAI Image Generator</h1>
+        
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="generate-tab" data-bs-toggle="tab" data-bs-target="#generate" type="button" role="tab" aria-controls="generate" aria-selected="true">Generate</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="edit-tab" data-bs-toggle="tab" data-bs-target="#edit" type="button" role="tab" aria-controls="edit" aria-selected="false">Edit</button>
+            </li>
+        </ul>
+        
+        <div class="tab-content p-3 border border-top-0 rounded-bottom" id="myTabContent">
+            <!-- Generate Tab -->
+            <div class="tab-pane fade show active" id="generate" role="tabpanel" aria-labelledby="generate-tab">
+                <form id="generate-form" class="mb-4">
+                    <div class="mb-3">
+                        <label for="prompt" class="form-label">Prompt</label>
+                        <textarea class="form-control" id="prompt" rows="3" placeholder="Describe the image you want to generate..." required></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="model" class="form-label">Model</label>
+                            <select class="form-select" id="model">
+                                <option value="gpt-image-1" selected>GPT Image</option>
+                                <option value="dall-e-3">DALL-E 3</option>
+                                <option value="dall-e-2">DALL-E 2</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-3 mb-3">
+                            <label for="size" class="form-label">Size</label>
+                            <select class="form-select" id="size">
+                                <option value="1024x1024" selected>1024x1024 (Square)</option>
+                                <option value="1024x1536">1024x1536 (Portrait)</option>
+                                <option value="1536x1024">1536x1024 (Landscape)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-3 mb-3">
+                            <label for="quality" class="form-label">Quality</label>
+                            <select class="form-select" id="quality">
+                                <option value="auto" selected>Auto</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-3 mb-3">
+                            <label for="background" class="form-label">Background</label>
+                            <select class="form-select" id="background">
+                                <option value="opaque" selected>Opaque</option>
+                                <option value="transparent">Transparent</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" id="generate-btn">Generate Image</button>
+                </form>
+                
+                <div class="result-container" id="generate-result">
+                    <div class="loading-spinner d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p>Generating image... This may take up to 2 minutes for complex prompts.</p>
+                    </div>
+                    <div class="result-image-container d-none">
+                        <h3>Generated Image</h3>
+                        <div class="image-container">
+                            <img id="result-image" class="img-fluid" alt="Generated image">
+                        </div>
+                        <button class="btn btn-success mt-2" id="download-btn">Download Image</button>
+                    </div>
+                    <div class="error-message d-none">
+                        <div class="alert alert-danger" role="alert"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Edit Tab -->
+            <div class="tab-pane fade" id="edit" role="tabpanel" aria-labelledby="edit-tab">
+                <form id="edit-form" class="mb-4" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="edit-prompt" class="form-label">Prompt</label>
+                        <textarea class="form-control" id="edit-prompt" name="prompt" rows="3" placeholder="Describe how you want to edit the image..." required></textarea>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="edit-model" class="form-label">Model</label>
+                            <select class="form-select" id="edit-model" name="model">
+                                <option value="gpt-image-1" selected>GPT Image</option>
+                                <option value="dall-e-2">DALL-E 2</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Editing Mode</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="edit-mode" id="mode-single" value="single" checked>
+                            <label class="form-check-label" for="mode-single">
+                                Single Image with Mask (Inpainting)
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="edit-mode" id="mode-reference" value="reference">
+                            <label class="form-check-label" for="mode-reference">
+                                Multiple Reference Images
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Single Image with Mask -->
+                    <div id="single-image-section">
+                        <div class="mb-3">
+                            <label for="image-file" class="form-label">Upload Image</label>
+                            <input class="form-control" type="file" id="image-file" name="image" accept="image/*" required>
+                            <div class="image-preview mt-2" id="image-preview"></div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="mask-file" class="form-label">Upload Mask (transparent areas will be edited)</label>
+                            <input class="form-control" type="file" id="mask-file" name="mask" accept="image/png">
+                            <div class="image-preview mt-2" id="mask-preview"></div>
+                            <small class="text-muted">The mask must be a PNG with transparency. Black areas will be preserved, transparent areas will be edited.</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Multiple Reference Images -->
+                    <div id="reference-images-section" class="d-none">
+                        <div class="mb-3">
+                            <label for="reference-images" class="form-label">Upload Reference Images (up to 4)</label>
+                            <input class="form-control" type="file" id="reference-images" name="additional_images" accept="image/*" multiple>
+                            <div class="reference-preview-container mt-2" id="reference-preview-container"></div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" id="edit-btn">Edit Image</button>
+                </form>
+                
+                <div class="result-container" id="edit-result">
+                    <div class="loading-spinner d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p>Editing image... This may take up to 2 minutes for complex edits.</p>
+                    </div>
+                    <div class="result-image-container d-none">
+                        <h3>Edited Image</h3>
+                        <div class="image-container">
+                            <img id="edit-result-image" class="img-fluid" alt="Edited image">
+                        </div>
+                        <button class="btn btn-success mt-2" id="edit-download-btn">Download Image</button>
+                    </div>
+                    <div class="error-message d-none">
+                        <div class="alert alert-danger" role="alert"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
