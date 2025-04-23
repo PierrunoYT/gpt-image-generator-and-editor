@@ -71,11 +71,17 @@ h1 {
 
 .reference-image-wrapper {
     position: relative;
-    width: 150px;
-    height: 150px;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
+    width: 180px;
+    height: 180px;
+    border-radius: 8px;
     overflow: hidden;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.reference-image-wrapper:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .reference-image {
@@ -86,49 +92,73 @@ h1 {
 
 .remove-image {
     position: absolute;
-    top: 5px;
-    right: 5px;
-    background-color: rgba(255, 255, 255, 0.8);
+    top: 8px;
+    right: 8px;
+    background-color: rgba(255, 255, 255, 0.9);
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    font-size: 12px;
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    z-index: 100;
 }
 
 .remove-image:hover {
-    background-color: rgba(255, 0, 0, 0.1);
+    background-color: #ff4d4f;
+    color: white;
+    transform: scale(1.1);
 }
 
 .drop-zone {
-    border: 2px dashed #dee2e6;
-    border-radius: 5px;
-    padding: 25px;
+    border: 2px dashed #cfd4da;
+    border-radius: 10px;
+    padding: 30px 20px;
     text-align: center;
     transition: all 0.3s ease;
     background-color: #f8f9fa;
     margin-bottom: 15px;
     position: relative;
+    cursor: pointer;
 }
 
-.drop-zone-drag {
-    background-color: #e9ecef;
+.drop-zone:hover {
+    background-color: #f1f3f5;
     border-color: #adb5bd;
 }
 
-.browse-btn {
-    margin-top: 10px;
-    z-index: 10;
-    position: relative;
+.drop-zone-drag {
+    background-color: #e7f5ff;
+    border-color: #4dabf7;
+}
+
+.drop-zone-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.drop-icon {
+    color: #6c757d;
+    margin-bottom: 10px;
 }
 
 .drop-zone-prompt {
-    color: #6c757d;
-    margin-bottom: 0;
+    color: #495057;
+    font-weight: 500;
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+.drop-zone-hint {
+    color: #868e96;
+    font-size: 0.875rem;
+    font-style: italic;
 }
 
 .drop-zone-input {
@@ -143,14 +173,22 @@ h1 {
 
 .drop-zone-thumb {
     width: 100%;
-    height: 150px;
-    border-radius: 5px;
+    height: 200px;
+    border-radius: 8px;
     overflow: hidden;
     background-color: #f8f9fa;
-    background-size: cover;
+    background-size: contain;
     background-position: center;
+    background-repeat: no-repeat;
     position: relative;
     display: none;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.drop-zone-thumb:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .drop-zone-thumb-multiple {
@@ -160,15 +198,22 @@ h1 {
 }
 
 .drop-zone-thumb-multiple .thumb-item {
-    width: 150px;
-    height: 150px;
-    border-radius: 5px;
+    width: 180px;
+    height: 180px;
+    border-radius: 8px;
     overflow: hidden;
     background-color: #f8f9fa;
-    background-size: cover;
+    background-size: contain;
+    background-repeat: no-repeat;
     background-position: center;
     position: relative;
-    border: 1px solid #dee2e6;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.thumb-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .clipboard-instruction {

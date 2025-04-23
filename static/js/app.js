@@ -57,12 +57,11 @@ document.addEventListener('DOMContentLoaded', function() {
     setupDropZone(maskDropZone, maskFile, maskPreviewThumb, false);
     setupDropZone(referenceDropZone, referenceImages, referencePreviewContainer, true);
     
-    // Setup the browse buttons
-    document.querySelectorAll('.browse-btn').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.stopPropagation();
-            // Find the closest input in this drop zone
-            const input = this.closest('.drop-zone').querySelector('input[type="file"]');
+    // Make the drop zones clickable again
+    document.querySelectorAll('.drop-zone').forEach(dropZone => {
+        dropZone.addEventListener('click', function(e) {
+            // Find the file input in this drop zone
+            const input = this.querySelector('input[type="file"]');
             if (input) {
                 input.click();
             }
@@ -497,11 +496,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show the container with thumbnails
             previewElement.style.display = 'flex';
             
-            // Hide the prompt text if files are added
+            // Hide the content if files are added
             if (input.files.length > 0) {
-                dropZone.querySelector('.drop-zone-prompt').style.display = 'none';
+                const content = dropZone.querySelector('.drop-zone-content');
+                if (content) content.style.display = 'none';
             } else {
-                dropZone.querySelector('.drop-zone-prompt').style.display = 'block';
+                const content = dropZone.querySelector('.drop-zone-content');
+                if (content) content.style.display = 'flex';
             }
         } else {
             // For single image upload
@@ -515,8 +516,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 previewElement.style.backgroundImage = `url('${e.target.result}')`;
                 previewElement.style.display = 'block';
                 
-                // Hide the prompt text
-                dropZone.querySelector('.drop-zone-prompt').style.display = 'none';
+                // Hide the content
+                const content = dropZone.querySelector('.drop-zone-content');
+                if (content) content.style.display = 'none';
             };
             
             reader.readAsDataURL(file);
@@ -536,9 +538,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             input.files = dataTransfer.files;
             
-            // Show the prompt text if no files remain
+            // Show the content if no files remain
             if (input.files.length === 0) {
-                input.parentElement.querySelector('.drop-zone-prompt').style.display = 'block';
+                const content = input.closest('.drop-zone').querySelector('.drop-zone-content');
+                if (content) content.style.display = 'flex';
             }
         }
     }

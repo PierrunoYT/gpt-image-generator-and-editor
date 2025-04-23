@@ -146,8 +146,17 @@
                         <div class="mb-3">
                             <label class="form-label">Upload Image</label>
                             <div class="drop-zone" id="image-drop-zone">
-                                <span class="drop-zone-prompt">Drop image here or click to upload</span>
-                                <button type="button" class="btn btn-outline-secondary btn-sm browse-btn">Browse Files</button>
+                                <div class="drop-zone-content">
+                                    <div class="drop-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="17 8 12 3 7 8"></polyline>
+                                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                                        </svg>
+                                    </div>
+                                    <span class="drop-zone-prompt">Drop image here</span>
+                                    <span class="drop-zone-hint">Click to select file</span>
+                                </div>
                                 <input class="drop-zone-input" type="file" id="image-file" name="image" accept="image/*" required>
                                 <div class="drop-zone-thumb" id="image-preview-thumb"></div>
                             </div>
@@ -157,8 +166,17 @@
                         <div class="mb-3">
                             <label class="form-label">Upload Mask (transparent areas will be edited)</label>
                             <div class="drop-zone" id="mask-drop-zone">
-                                <span class="drop-zone-prompt">Drop mask here or click to upload</span>
-                                <button type="button" class="btn btn-outline-secondary btn-sm browse-btn">Browse Files</button>
+                                <div class="drop-zone-content">
+                                    <div class="drop-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="17 8 12 3 7 8"></polyline>
+                                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                                        </svg>
+                                    </div>
+                                    <span class="drop-zone-prompt">Drop mask here</span>
+                                    <span class="drop-zone-hint">Click to select file</span>
+                                </div>
                                 <input class="drop-zone-input" type="file" id="mask-file" name="mask" accept="image/png">
                                 <div class="drop-zone-thumb" id="mask-preview-thumb"></div>
                             </div>
@@ -172,8 +190,17 @@
                         <div class="mb-3">
                             <label class="form-label">Upload Reference Images (up to 4)</label>
                             <div class="drop-zone" id="reference-drop-zone">
-                                <span class="drop-zone-prompt">Drop images here or click to upload</span>
-                                <button type="button" class="btn btn-outline-secondary btn-sm browse-btn">Browse Files</button>
+                                <div class="drop-zone-content">
+                                    <div class="drop-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="17 8 12 3 7 8"></polyline>
+                                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                                        </svg>
+                                    </div>
+                                    <span class="drop-zone-prompt">Drop images here</span>
+                                    <span class="drop-zone-hint">Click to select files</span>
+                                </div>
                                 <input class="drop-zone-input" type="file" id="reference-images" name="additional_images" accept="image/*" multiple>
                                 <div class="drop-zone-thumb-multiple" id="reference-preview-container"></div>
                             </div>
