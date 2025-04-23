@@ -1,5 +1,6 @@
 import os
 import base64
+import time
 from flask import Flask, render_template, request, jsonify
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -60,6 +61,9 @@ def generate_image():
 
 @app.route("/edit", methods=["POST"])
 def edit_image():
+    # Temporary file paths to clean up at the end
+    temp_files = []
+    
     try:
         prompt = request.form["prompt"]
         model = request.form.get("model", "gpt-image-1")
@@ -69,22 +73,30 @@ def edit_image():
         image_file = request.files["image"]
         mask_file = request.files.get("mask")
         
-        # Save uploaded files to temporary files
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as temp_image:
-            image_path = temp_image.name
-            image_file.save(image_path)
+        # Create directory for temporary files if it doesn't exist
+        temp_dir = os.path.join(tempfile.gettempdir(), "openai_image_app")
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        # Save main image to a temporary file
+        image_path = os.path.join(temp_dir, f"image_{int(time.time())}.png")
+        image_file.save(image_path)
+        temp_files.append(image_path)
         
         if mask_file:
             # Single image with mask (inpainting)
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as temp_mask:
-                mask_path = temp_mask.name
-                mask_file.save(mask_path)
+            mask_path = os.path.join(temp_dir, f"mask_{int(time.time())}.png")
+            mask_file.save(mask_path)
+            temp_files.append(mask_path)
             
-            with open(image_path, "rb") as img_file, open(mask_path, "rb") as mask_file:
+            # Make sure both files exist
+            if not os.path.exists(image_path) or not os.path.exists(mask_path):
+                return jsonify({"success": False, "error": "Failed to save temporary files"})
+            
+            with open(image_path, "rb") as img_file, open(mask_path, "rb") as mask_file_obj:
                 result = client.images.edit(
                     model=model,
                     image=img_file,
-                    mask=mask_file,
+                    mask=mask_file_obj,
                     prompt=prompt,
                     size=size,
                     quality=quality
@@ -99,25 +111,28 @@ def edit_image():
                     if response.status_code == 200:
                         import base64
                         image_b64 = base64.b64encode(response.content).decode('utf-8')
-            
-            # Clean up temporary files
-            os.unlink(mask_path)
         else:
             # Multiple reference images
             additional_images = request.files.getlist("additional_images")
             image_paths = [image_path]
             
             # Save additional images to temporary files
-            for add_img in additional_images:
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as temp_add_img:
-                    add_img_path = temp_add_img.name
-                    add_img.save(add_img_path)
-                    image_paths.append(add_img_path)
+            for i, add_img in enumerate(additional_images):
+                add_img_path = os.path.join(temp_dir, f"ref_image_{i}_{int(time.time())}.png")
+                add_img.save(add_img_path)
+                image_paths.append(add_img_path)
+                temp_files.append(add_img_path)
+            
+            # Verify all files exist
+            for path in image_paths:
+                if not os.path.exists(path):
+                    return jsonify({"success": False, "error": f"Failed to save temporary file: {path}"})
             
             # Open all images as file objects
-            image_files = [open(path, "rb") for path in image_paths]
-            
+            image_files = []
             try:
+                image_files = [open(path, "rb") for path in image_paths]
+                
                 result = client.images.edit(
                     model=model,
                     image=image_files,
@@ -139,14 +154,6 @@ def edit_image():
                 # Close all file objects
                 for file in image_files:
                     file.close()
-                
-                # Clean up temporary files
-                for path in image_paths:
-                    os.unlink(path)
-        
-        # Clean up the main image temporary file
-        if not mask_file and not additional_images:
-            os.unlink(image_path)
         
         # At this point image_b64 should be populated by one of the methods above
         if not image_b64:
@@ -155,6 +162,14 @@ def edit_image():
         return jsonify({"success": True, "image": image_b64})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
+    finally:
+        # Clean up all temporary files
+        for path in temp_files:
+            try:
+                if os.path.exists(path):
+                    os.remove(path)
+            except Exception:
+                pass  # Ignore errors during cleanup
 
 if __name__ == "__main__":
     app.run(debug=True)
