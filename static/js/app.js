@@ -57,6 +57,18 @@ document.addEventListener('DOMContentLoaded', function() {
     setupDropZone(maskDropZone, maskFile, maskPreviewThumb, false);
     setupDropZone(referenceDropZone, referenceImages, referencePreviewContainer, true);
     
+    // Setup the browse buttons
+    document.querySelectorAll('.browse-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.stopPropagation();
+            // Find the closest input in this drop zone
+            const input = this.closest('.drop-zone').querySelector('input[type="file"]');
+            if (input) {
+                input.click();
+            }
+        });
+    });
+    
     // Setup clipboard paste for images
     document.addEventListener('paste', function(e) {
         // Determine which drop zone is currently focused or clicked
@@ -389,13 +401,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Click to upload - but only if the click is on the drop zone itself or its prompt
-        dropZoneElement.addEventListener('click', function(e) {
-            // Avoid triggering click if user is clicking on a child element that's not the drop zone prompt
-            if (e.target === dropZoneElement || e.target.classList.contains('drop-zone-prompt')) {
-                inputElement.click();
-            }
-        });
+        // Remove the click handler - we now use the Browse Files button instead
     }
     
     // Handle paste events for images

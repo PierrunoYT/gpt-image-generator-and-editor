@@ -112,12 +112,18 @@ h1 {
     transition: all 0.3s ease;
     background-color: #f8f9fa;
     margin-bottom: 15px;
-    cursor: pointer;
+    position: relative;
 }
 
-.drop-zone:hover, .drop-zone-drag {
+.drop-zone-drag {
     background-color: #e9ecef;
     border-color: #adb5bd;
+}
+
+.browse-btn {
+    margin-top: 10px;
+    z-index: 10;
+    position: relative;
 }
 
 .drop-zone-prompt {
