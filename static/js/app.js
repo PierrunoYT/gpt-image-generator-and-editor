@@ -244,7 +244,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Download buttons and further editing functionality
     downloadBtn.addEventListener('click', function() {
-        downloadImage(resultImage.src, 'generated-image.png');
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const randomId = Math.random().toString(36).substring(2, 8);
+        const filename = `generated-image-${timestamp}-${randomId}.png`;
+        downloadImage(resultImage.src, filename);
     });
     
     document.getElementById('use-for-edit-btn').addEventListener('click', function() {
@@ -259,7 +262,8 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(resultImage.src)
             .then(res => res.blob())
             .then(blob => {
-                const file = new File([blob], 'generated-image.png', { type: 'image/png' });
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
+                const file = new File([blob], `generated-image-${timestamp}.png`, { type: 'image/png' });
                 
                 // Create a new DataTransfer and add the file
                 const dataTransfer = new DataTransfer();
@@ -277,7 +281,22 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     editDownloadBtn.addEventListener('click', function() {
-        downloadImage(editResultImage.src, 'edited-image.png');
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const randomId = Math.random().toString(36).substring(2, 8);
+        const promptText = document.getElementById('edit-prompt').value.trim();
+        
+        // Include a short version of the prompt in the filename if available
+        let promptPart = '';
+        if (promptText) {
+            // Get first few words from prompt, max 20 chars
+            promptPart = '-' + promptText.split(' ').slice(0, 3).join('-').slice(0, 20)
+                .replace(/[^a-zA-Z0-9]/g, '-')  // Replace non-alphanumeric chars with dashes
+                .replace(/-+/g, '-')           // Replace multiple dashes with single dash
+                .replace(/^-|-$/g, '');        // Remove leading/trailing dashes
+        }
+        
+        const filename = `edited-image${promptPart ? '-' + promptPart : ''}-${timestamp}-${randomId}.png`;
+        downloadImage(editResultImage.src, filename);
     });
     
     document.getElementById('edit-again-btn').addEventListener('click', function() {
@@ -290,7 +309,9 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(editResultImage.src)
             .then(res => res.blob())
             .then(blob => {
-                const file = new File([blob], 'edited-image.png', { type: 'image/png' });
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
+                const randomId = Math.random().toString(36).substring(2, 6);
+                const file = new File([blob], `edited-image-${timestamp}-${randomId}.png`, { type: 'image/png' });
                 
                 if (isReferenceMode) {
                     // If in reference mode, use it as a reference image
