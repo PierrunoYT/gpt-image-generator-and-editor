@@ -389,9 +389,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Click to upload
-        dropZoneElement.addEventListener('click', function() {
-            inputElement.click();
+        // Click to upload - but only if the click is on the drop zone itself or its prompt
+        dropZoneElement.addEventListener('click', function(e) {
+            // Avoid triggering click if user is clicking on a child element that's not the drop zone prompt
+            if (e.target === dropZoneElement || e.target.classList.contains('drop-zone-prompt')) {
+                inputElement.click();
+            }
         });
     }
     

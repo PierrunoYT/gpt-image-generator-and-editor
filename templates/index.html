@@ -32,14 +32,14 @@
                     <div class="row">
                         <div class="col-md-3 mb-3">
                             <label for="model" class="form-label">Model</label>
-                            <select class="form-select" id="model">
+                            <select class="form-select" id="model" onclick="event.stopPropagation()">
                                 <option value="gpt-image-1" selected>GPT Image</option>
                             </select>
                         </div>
                         
                         <div class="col-md-3 mb-3">
                             <label for="size" class="form-label">Size</label>
-                            <select class="form-select" id="size">
+                            <select class="form-select" id="size" onclick="event.stopPropagation()">
                                 <option value="1024x1024" selected>1024x1024 (Square)</option>
                                 <option value="1024x1536">1024x1536 (Portrait)</option>
                                 <option value="1536x1024">1536x1024 (Landscape)</option>
@@ -48,7 +48,7 @@
                         
                         <div class="col-md-3 mb-3">
                             <label for="quality" class="form-label">Quality</label>
-                            <select class="form-select" id="quality">
+                            <select class="form-select" id="quality" onclick="event.stopPropagation()">
                                 <option value="auto" selected>Auto</option>
                                 <option value="low">Low</option>
                                 <option value="medium">Medium</option>
@@ -58,7 +58,7 @@
                         
                         <div class="col-md-3 mb-3">
                             <label for="background" class="form-label">Background</label>
-                            <select class="form-select" id="background">
+                            <select class="form-select" id="background" onclick="event.stopPropagation()">
                                 <option value="opaque" selected>Opaque</option>
                                 <option value="transparent">Transparent</option>
                             </select>
@@ -102,13 +102,13 @@
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <label for="edit-model" class="form-label">Model</label>
-                            <select class="form-select" id="edit-model" name="model">
+                            <select class="form-select" id="edit-model" name="model" onclick="event.stopPropagation()">
                                 <option value="gpt-image-1" selected>GPT Image</option>
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label for="edit-size" class="form-label">Output Size</label>
-                            <select class="form-select" id="edit-size" name="size">
+                            <select class="form-select" id="edit-size" name="size" onclick="event.stopPropagation()">
                                 <option value="1024x1024" selected>1024x1024 (Square)</option>
                                 <option value="1024x1536">1024x1536 (Portrait)</option>
                                 <option value="1536x1024">1536x1024 (Landscape)</option>
@@ -116,7 +116,7 @@
                         </div>
                         <div class="col-md-4">
                             <label for="edit-quality" class="form-label">Quality</label>
-                            <select class="form-select" id="edit-quality" name="quality">
+                            <select class="form-select" id="edit-quality" name="quality" onclick="event.stopPropagation()">
                                 <option value="auto" selected>Auto</option>
                                 <option value="low">Low</option>
                                 <option value="medium">Medium</option>
@@ -127,15 +127,15 @@
                     
                     <div class="mb-3">
                         <label class="form-label">Editing Mode</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="edit-mode" id="mode-single" value="single" checked>
-                            <label class="form-check-label" for="mode-single">
+                        <div class="form-check" onclick="event.stopPropagation()">
+                            <input class="form-check-input" type="radio" name="edit-mode" id="mode-single" value="single" checked onclick="event.stopPropagation()">
+                            <label class="form-check-label" for="mode-single" onclick="event.stopPropagation()">
                                 Single Image with Mask (Inpainting)
                             </label>
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="edit-mode" id="mode-reference" value="reference">
-                            <label class="form-check-label" for="mode-reference">
+                        <div class="form-check" onclick="event.stopPropagation()">
+                            <input class="form-check-input" type="radio" name="edit-mode" id="mode-reference" value="reference" onclick="event.stopPropagation()">
+                            <label class="form-check-label" for="mode-reference" onclick="event.stopPropagation()">
                                 Multiple Reference Images
                             </label>
                         </div>
