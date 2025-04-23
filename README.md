@@ -9,7 +9,7 @@ A web interface for OpenAI's image generation capabilities, including image gene
   - Use a mask to edit specific parts of an image (inpainting)
   - Generate new images using multiple reference images
 - **Customization Options**:
-  - Model selection (GPT Image, DALL-E 3, DALL-E 2)
+  - Model: GPT Image (gpt-image-1)
   - Image size (square, portrait, landscape)
   - Quality settings (low, medium, high)
   - Background transparency support
