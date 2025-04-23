@@ -26,12 +26,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const singleImageSection = document.getElementById('single-image-section');
     const referenceImagesSection = document.getElementById('reference-images-section');
     
-    // Image & mask preview elements
+    // Image & mask elements
     const imageFile = document.getElementById('image-file');
-    const imagePreview = document.getElementById('image-preview');
+    const imageDropZone = document.getElementById('image-drop-zone');
+    const imagePreviewThumb = document.getElementById('image-preview-thumb');
+    
     const maskFile = document.getElementById('mask-file');
-    const maskPreview = document.getElementById('mask-preview');
+    const maskDropZone = document.getElementById('mask-drop-zone');
+    const maskPreviewThumb = document.getElementById('mask-preview-thumb');
+    
     const referenceImages = document.getElementById('reference-images');
+    const referenceDropZone = document.getElementById('reference-drop-zone');
     const referencePreviewContainer = document.getElementById('reference-preview-container');
 
     // Handle mode switching
@@ -47,19 +52,63 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Image preview for main image
+    // Set up drag and drop for image upload
+    setupDropZone(imageDropZone, imageFile, imagePreviewThumb, false);
+    setupDropZone(maskDropZone, maskFile, maskPreviewThumb, false);
+    setupDropZone(referenceDropZone, referenceImages, referencePreviewContainer, true);
+    
+    // Setup clipboard paste for images
+    document.addEventListener('paste', function(e) {
+        // Determine which drop zone is currently focused or clicked
+        const activeElement = document.activeElement;
+        let targetDropZone, targetInput, targetPreview, isMultiple;
+        
+        if (imageDropZone.contains(activeElement) || imageDropZone === document.activeElement) {
+            targetDropZone = imageDropZone;
+            targetInput = imageFile;
+            targetPreview = imagePreviewThumb;
+            isMultiple = false;
+        } else if (maskDropZone.contains(activeElement) || maskDropZone === document.activeElement) {
+            targetDropZone = maskDropZone;
+            targetInput = maskFile;
+            targetPreview = maskPreviewThumb;
+            isMultiple = false;
+        } else if (referenceDropZone.contains(activeElement) || referenceDropZone === document.activeElement) {
+            targetDropZone = referenceDropZone;
+            targetInput = referenceImages;
+            targetPreview = referencePreviewContainer;
+            isMultiple = true;
+        } else {
+            // No drop zone is focused, try to paste to the visible section
+            if (!referenceImagesSection.classList.contains('d-none')) {
+                targetDropZone = referenceDropZone;
+                targetInput = referenceImages;
+                targetPreview = referencePreviewContainer;
+                isMultiple = true;
+            } else {
+                targetDropZone = imageDropZone;
+                targetInput = imageFile;
+                targetPreview = imagePreviewThumb;
+                isMultiple = false;
+            }
+        }
+        
+        if (targetDropZone) {
+            handlePaste(e, targetInput, targetPreview, isMultiple);
+        }
+    });
+    
+    // Image preview - handled by setupDropZone now
     imageFile.addEventListener('change', function() {
-        previewImage(this, imagePreview);
+        updateThumbnail(imageDropZone, this, imagePreviewThumb, false);
     });
 
-    // Image preview for mask
     maskFile.addEventListener('change', function() {
-        previewImage(this, maskPreview);
+        updateThumbnail(maskDropZone, this, maskPreviewThumb, false);
     });
 
-    // Image preview for reference images
     referenceImages.addEventListener('change', function() {
-        previewReferenceImages(this);
+        updateThumbnail(referenceDropZone, this, referencePreviewContainer, true);
     });
 
     // Generate Image Form Submission
@@ -203,45 +252,208 @@ document.addEventListener('DOMContentLoaded', function() {
         showElement(container);
     }
     
-    function previewImage(input, previewElement) {
-        previewElement.innerHTML = '';
+    // Setup drop zone for drag and drop functionality
+    function setupDropZone(dropZoneElement, inputElement, previewElement, isMultiple) {
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZoneElement.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
         
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
+        // Highlight drop zone when item is dragged over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZoneElement.addEventListener(eventName, function() {
+                dropZoneElement.classList.add('drop-zone-drag');
+            });
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZoneElement.addEventListener(eventName, function() {
+                dropZoneElement.classList.remove('drop-zone-drag');
+            });
+        });
+        
+        // Handle dropped files
+        dropZoneElement.addEventListener('drop', function(e) {
+            let dt = e.dataTransfer;
+            let files = dt.files;
             
-            reader.onload = function(e) {
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.classList.add('preview-image');
-                previewElement.appendChild(img);
+            // Handle multiple file selection for reference images
+            if (isMultiple) {
+                if (files.length > 0) {
+                    // Create a FileList-like object
+                    let dataTransfer = new DataTransfer();
+                    
+                    // Add dropped files
+                    for (let i = 0; i < files.length; i++) {
+                        if (files[i].type.startsWith('image/')) {
+                            dataTransfer.items.add(files[i]);
+                        }
+                    }
+                    
+                    // Set the files to the input element
+                    inputElement.files = dataTransfer.files;
+                    
+                    // Update thumbnails
+                    updateThumbnail(dropZoneElement, inputElement, previewElement, isMultiple);
+                }
+            } else {
+                // For single file uploads, just use the first file
+                if (files.length > 0 && files[0].type.startsWith('image/')) {
+                    inputElement.files = files;
+                    updateThumbnail(dropZoneElement, inputElement, previewElement, isMultiple);
+                }
+            }
+        });
+        
+        // Click to upload
+        dropZoneElement.addEventListener('click', function() {
+            inputElement.click();
+        });
+    }
+    
+    // Handle paste events for images
+    function handlePaste(e, inputElement, previewElement, isMultiple) {
+        if (e.clipboardData && e.clipboardData.items) {
+            const items = e.clipboardData.items;
+            let imageItems = [];
+            
+            // Collect all image items from clipboard
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    imageItems.push(items[i]);
+                }
             }
             
-            reader.readAsDataURL(input.files[0]);
+            if (imageItems.length > 0) {
+                e.preventDefault();
+                
+                if (isMultiple) {
+                    // For multiple file inputs (reference images)
+                    let dataTransfer = new DataTransfer();
+                    
+                    // Add existing files if any
+                    if (inputElement.files) {
+                        for (let i = 0; i < inputElement.files.length; i++) {
+                            dataTransfer.items.add(inputElement.files[i]);
+                        }
+                    }
+                    
+                    // Add clipboard images
+                    for (let i = 0; i < imageItems.length; i++) {
+                        const blob = imageItems[i].getAsFile();
+                        if (blob) {
+                            dataTransfer.items.add(new File([blob], `pasted-image-${Date.now()}-${i}.png`, { type: blob.type }));
+                        }
+                    }
+                    
+                    // Update input files
+                    inputElement.files = dataTransfer.files;
+                } else {
+                    // For single file inputs, just use the first image
+                    const blob = imageItems[0].getAsFile();
+                    if (blob) {
+                        let dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(new File([blob], `pasted-image-${Date.now()}.png`, { type: blob.type }));
+                        inputElement.files = dataTransfer.files;
+                    }
+                }
+                
+                // Update the preview
+                updateThumbnail(inputElement.parentElement, inputElement, previewElement, isMultiple);
+            }
         }
     }
     
-    function previewReferenceImages(input) {
-        referencePreviewContainer.innerHTML = '';
+    // Update thumbnail preview
+    function updateThumbnail(dropZone, input, previewElement, isMultiple) {
+        if (!input.files || input.files.length === 0) {
+            return;
+        }
         
-        if (input.files) {
+        if (isMultiple) {
+            // Clear previews
+            previewElement.innerHTML = '';
+            
+            // Create thumbnails for each file
             for (let i = 0; i < input.files.length; i++) {
+                if (!input.files[i].type.startsWith('image/')) continue;
+                
                 const reader = new FileReader();
                 
                 reader.onload = function(e) {
-                    const wrapper = document.createElement('div');
-                    wrapper.classList.add('reference-image-wrapper');
+                    const thumbItem = document.createElement('div');
+                    thumbItem.classList.add('thumb-item');
+                    thumbItem.style.backgroundImage = `url('${e.target.result}')`;
                     
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.classList.add('reference-image');
+                    const removeBtn = document.createElement('div');
+                    removeBtn.classList.add('remove-image');
+                    removeBtn.innerHTML = '×';
+                    removeBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        removeFile(input, i);
+                        thumbItem.remove();
+                    });
                     
-                    wrapper.appendChild(img);
-                    referencePreviewContainer.appendChild(wrapper);
-                }
+                    thumbItem.appendChild(removeBtn);
+                    previewElement.appendChild(thumbItem);
+                };
                 
                 reader.readAsDataURL(input.files[i]);
             }
+            
+            // Show the container with thumbnails
+            previewElement.style.display = 'flex';
+            
+            // Hide the prompt text if files are added
+            if (input.files.length > 0) {
+                dropZone.querySelector('.drop-zone-prompt').style.display = 'none';
+            } else {
+                dropZone.querySelector('.drop-zone-prompt').style.display = 'block';
+            }
+        } else {
+            // For single image upload
+            const file = input.files[0];
+            if (!file.type.startsWith('image/')) return;
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                // Set the background image of the thumbnail div
+                previewElement.style.backgroundImage = `url('${e.target.result}')`;
+                previewElement.style.display = 'block';
+                
+                // Hide the prompt text
+                dropZone.querySelector('.drop-zone-prompt').style.display = 'none';
+            };
+            
+            reader.readAsDataURL(file);
         }
+    }
+    
+    // Remove a file from the input's FileList
+    function removeFile(input, index) {
+        if (input.files && input.files.length > 0) {
+            let dataTransfer = new DataTransfer();
+            
+            for (let i = 0; i < input.files.length; i++) {
+                if (i !== index) {
+                    dataTransfer.items.add(input.files[i]);
+                }
+            }
+            
+            input.files = dataTransfer.files;
+            
+            // Show the prompt text if no files remain
+            if (input.files.length === 0) {
+                input.parentElement.querySelector('.drop-zone-prompt').style.display = 'block';
+            }
+        }
+    }
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
     }
     
     function downloadImage(dataUrl, filename) {

@@ -124,25 +124,37 @@
                     <!-- Single Image with Mask -->
                     <div id="single-image-section">
                         <div class="mb-3">
-                            <label for="image-file" class="form-label">Upload Image</label>
-                            <input class="form-control" type="file" id="image-file" name="image" accept="image/*" required>
-                            <div class="image-preview mt-2" id="image-preview"></div>
+                            <label class="form-label">Upload Image</label>
+                            <div class="drop-zone" id="image-drop-zone">
+                                <span class="drop-zone-prompt">Drop image here or click to upload</span>
+                                <input class="drop-zone-input" type="file" id="image-file" name="image" accept="image/*" required>
+                                <div class="drop-zone-thumb" id="image-preview-thumb"></div>
+                            </div>
+                            <p class="clipboard-instruction">You can also paste images directly from your clipboard (Ctrl+V / Cmd+V)</p>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="mask-file" class="form-label">Upload Mask (transparent areas will be edited)</label>
-                            <input class="form-control" type="file" id="mask-file" name="mask" accept="image/png">
-                            <div class="image-preview mt-2" id="mask-preview"></div>
+                            <label class="form-label">Upload Mask (transparent areas will be edited)</label>
+                            <div class="drop-zone" id="mask-drop-zone">
+                                <span class="drop-zone-prompt">Drop mask here or click to upload</span>
+                                <input class="drop-zone-input" type="file" id="mask-file" name="mask" accept="image/png">
+                                <div class="drop-zone-thumb" id="mask-preview-thumb"></div>
+                            </div>
                             <small class="text-muted">The mask must be a PNG with transparency. Black areas will be preserved, transparent areas will be edited.</small>
+                            <p class="clipboard-instruction">You can also paste mask images directly from your clipboard (Ctrl+V / Cmd+V when this area is focused)</p>
                         </div>
                     </div>
                     
                     <!-- Multiple Reference Images -->
                     <div id="reference-images-section" class="d-none">
                         <div class="mb-3">
-                            <label for="reference-images" class="form-label">Upload Reference Images (up to 4)</label>
-                            <input class="form-control" type="file" id="reference-images" name="additional_images" accept="image/*" multiple>
-                            <div class="reference-preview-container mt-2" id="reference-preview-container"></div>
+                            <label class="form-label">Upload Reference Images (up to 4)</label>
+                            <div class="drop-zone" id="reference-drop-zone">
+                                <span class="drop-zone-prompt">Drop images here or click to upload</span>
+                                <input class="drop-zone-input" type="file" id="reference-images" name="additional_images" accept="image/*" multiple>
+                                <div class="drop-zone-thumb-multiple" id="reference-preview-container"></div>
+                            </div>
+                            <p class="clipboard-instruction">You can also paste images directly from your clipboard (Ctrl+V / Cmd+V when this area is focused)</p>
                         </div>
                     </div>
                     
