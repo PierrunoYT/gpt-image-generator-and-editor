@@ -1,6 +1,6 @@
-# OpenAI Image Generator
+# GPT Image Generator and Editor
 
-A web interface for OpenAI's image generation capabilities, including image generation and editing using GPT Image (gpt-image-1), DALL-E 3, and DALL-E 2 models.
+A web interface for OpenAI's image generation and editing capabilities using the GPT Image (gpt-image-1) model.
 
 ## Features
 
@@ -9,13 +9,14 @@ A web interface for OpenAI's image generation capabilities, including image gene
   - Use a mask to edit specific parts of an image (inpainting)
   - Generate new images using multiple reference images
 - **Customization Options**:
-  - Model: GPT Image (gpt-image-1)
   - Image size selection: 
     - 1024x1024 (Square)
     - 1024x1536 (Portrait)
     - 1536x1024 (Landscape)
   - Quality settings (auto, low, medium, high)
   - Background transparency support
+  - Drag-and-drop image upload
+  - Clipboard paste support for images
 
 ## Setup
 
@@ -66,5 +67,11 @@ Two editing modes are available:
 ## Limitations
 
 - Image generation can take up to 2 minutes for complex prompts
-- GPT Image and DALL-E models have different capabilities (see OpenAI documentation for details)
 - API usage is subject to OpenAI's pricing and rate limits
+
+## Additional Features
+
+- Continue editing previously generated images
+- Unique filename generation with timestamps and descriptive elements
+- Cross-browser clipboard paste support
+- Real-time image preview for uploads
