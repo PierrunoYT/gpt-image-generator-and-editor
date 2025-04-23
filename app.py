@@ -38,11 +38,22 @@ def generate_image():
             prompt=prompt,
             size=size,
             quality=quality,
-            background=background,
-            response_format="b64_json"
+            background=background
         )
         
-        image_b64 = result.data[0].b64_json
+        # Extract image data - the response structure may differ based on API version
+        image_b64 = getattr(result.data[0], "b64_json", None)
+        if not image_b64 and hasattr(result.data[0], "url"):
+            # If b64_json is not available, download the image from URL
+            import requests
+            response = requests.get(result.data[0].url)
+            if response.status_code == 200:
+                import base64
+                image_b64 = base64.b64encode(response.content).decode('utf-8')
+        
+        if not image_b64:
+            return jsonify({"success": False, "error": "Failed to get image data from API response"})
+            
         return jsonify({"success": True, "image": image_b64})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
@@ -76,9 +87,18 @@ def edit_image():
                     mask=mask_file,
                     prompt=prompt,
                     size=size,
-                    quality=quality,
-                    response_format="b64_json"
+                    quality=quality
                 )
+                
+                # Extract image data - the response structure may differ based on API version
+                image_b64 = getattr(result.data[0], "b64_json", None)
+                if not image_b64 and hasattr(result.data[0], "url"):
+                    # If b64_json is not available, download the image from URL
+                    import requests
+                    response = requests.get(result.data[0].url)
+                    if response.status_code == 200:
+                        import base64
+                        image_b64 = base64.b64encode(response.content).decode('utf-8')
             
             # Clean up temporary files
             os.unlink(mask_path)
@@ -103,9 +123,18 @@ def edit_image():
                     image=image_files,
                     prompt=prompt,
                     size=size,
-                    quality=quality,
-                    response_format="b64_json"
+                    quality=quality
                 )
+                
+                # Extract image data - the response structure may differ based on API version
+                image_b64 = getattr(result.data[0], "b64_json", None)
+                if not image_b64 and hasattr(result.data[0], "url"):
+                    # If b64_json is not available, download the image from URL
+                    import requests
+                    response = requests.get(result.data[0].url)
+                    if response.status_code == 200:
+                        import base64
+                        image_b64 = base64.b64encode(response.content).decode('utf-8')
             finally:
                 # Close all file objects
                 for file in image_files:
@@ -119,7 +148,10 @@ def edit_image():
         if not mask_file and not additional_images:
             os.unlink(image_path)
         
-        image_b64 = result.data[0].b64_json
+        # At this point image_b64 should be populated by one of the methods above
+        if not image_b64:
+            return jsonify({"success": False, "error": "Failed to get image data from API response"})
+            
         return jsonify({"success": True, "image": image_b64})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
