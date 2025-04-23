@@ -229,13 +229,94 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Download buttons
+    // Download buttons and further editing functionality
     downloadBtn.addEventListener('click', function() {
         downloadImage(resultImage.src, 'generated-image.png');
     });
     
+    document.getElementById('use-for-edit-btn').addEventListener('click', function() {
+        // Switch to edit tab
+        document.getElementById('edit-tab').click();
+        
+        // Select reference images mode
+        document.getElementById('mode-reference').checked = true;
+        document.getElementById('mode-reference').dispatchEvent(new Event('change'));
+        
+        // Convert img src to File object and add to the reference images input
+        fetch(resultImage.src)
+            .then(res => res.blob())
+            .then(blob => {
+                const file = new File([blob], 'generated-image.png', { type: 'image/png' });
+                
+                // Create a new DataTransfer and add the file
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                
+                // Set the files to the input
+                referenceImages.files = dataTransfer.files;
+                
+                // Update the thumbnail
+                updateThumbnail(referenceDropZone, referenceImages, referencePreviewContainer, true);
+                
+                // Set focus to the prompt field
+                document.getElementById('edit-prompt').focus();
+            });
+    });
+    
     editDownloadBtn.addEventListener('click', function() {
         downloadImage(editResultImage.src, 'edited-image.png');
+    });
+    
+    document.getElementById('edit-again-btn').addEventListener('click', function() {
+        // Stay in edit tab, but reuse the edited image
+        
+        // Determine active editing mode
+        const isReferenceMode = document.getElementById('mode-reference').checked;
+        
+        // Convert img src to File object
+        fetch(editResultImage.src)
+            .then(res => res.blob())
+            .then(blob => {
+                const file = new File([blob], 'edited-image.png', { type: 'image/png' });
+                
+                if (isReferenceMode) {
+                    // If in reference mode, use it as a reference image
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    
+                    // Set the files to the input
+                    referenceImages.files = dataTransfer.files;
+                    
+                    // Update thumbnail
+                    updateThumbnail(referenceDropZone, referenceImages, referencePreviewContainer, true);
+                } else {
+                    // If in single image mode, use it as the main image
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    
+                    // Set the files to the input
+                    imageFile.files = dataTransfer.files;
+                    
+                    // Update thumbnail
+                    updateThumbnail(imageDropZone, imageFile, imagePreviewThumb, false);
+                }
+                
+                // Hide result and clear prompt
+                hideElement(editResultImageContainer);
+                document.getElementById('edit-prompt').value = '';
+                document.getElementById('edit-prompt').focus();
+            });
+    });
+    
+    document.getElementById('use-in-generation-btn').addEventListener('click', function() {
+        // Switch to generate tab
+        document.getElementById('generate-tab').click();
+        
+        // Set focus to the prompt field
+        document.getElementById('prompt').focus();
+        
+        // Hide the previous generation result
+        hideElement(resultImageContainer);
     });
 
     // Helper Functions

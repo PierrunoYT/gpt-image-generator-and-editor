@@ -171,3 +171,7 @@ h1 {
     margin-top: 5px;
     font-style: italic;
 }
+
+.gap-2 {
+    gap: 0.5rem;
+}
