@@ -99,24 +99,24 @@ def generate_image():
         if not prompt:
             return jsonify({"success": False, "error": "Valid prompt is required"})
 
-        # Use correct DALL-E 3 model
-        model = "dall-e-3"  # Fixed: gpt-image-1 doesn't exist
+        # Use GPT-image-1 model
+        model = "gpt-image-1"
         size = data.get("size", "1024x1024")
-        quality = data.get("quality", "standard")  # Fixed: "auto" is not valid
+        quality = data.get("quality", "standard")
 
-        # Validate size
-        valid_sizes = ["1024x1024", "1024x1792", "1792x1024"]
+        # Validate size for GPT-image-1
+        valid_sizes = ["1024x1024", "1024x1536", "1536x1024", "auto"]
         if size not in valid_sizes:
             size = "1024x1024"
 
-        # Validate quality
+        # Validate quality for GPT-image-1
         valid_qualities = ["standard", "hd"]
         if quality not in valid_qualities:
             quality = "standard"
 
-        logger.info(f"Generating image with prompt: {prompt[:100]}...")
+        logger.info(f"Generating image with GPT-image-1, prompt: {prompt[:100]}...")
 
-        # Generate image using DALL-E 3
+        # Generate image using GPT-image-1
         result = client.images.generate(
             model=model,
             prompt=prompt,
@@ -154,8 +154,8 @@ def edit_image():
         # Validate parameters
         size = request.form.get("size", "1024x1024")
 
-        # Validate size for DALL-E 2 (editing only supports DALL-E 2)
-        valid_sizes = ["256x256", "512x512", "1024x1024"]
+        # Validate size for GPT-image-1 editing
+        valid_sizes = ["1024x1024", "1024x1536", "1536x1024"]
         if size not in valid_sizes:
             size = "1024x1024"
 
@@ -196,11 +196,12 @@ def edit_image():
             if not os.path.exists(image_path) or not os.path.exists(mask_path):
                 return jsonify({"success": False, "error": "Failed to save temporary files"})
 
-            logger.info(f"Editing image with mask, prompt: {prompt[:100]}...")
+            logger.info(f"Editing image with GPT-image-1 and mask, prompt: {prompt[:100]}...")
 
             with open(image_path, "rb") as img_file, open(mask_path, "rb") as mask_file_obj:
-                # Use DALL-E 2 for editing (only model that supports editing)
+                # Use GPT-image-1 for editing
                 result = client.images.edit(
+                    model="gpt-image-1",
                     image=img_file,
                     mask=mask_file_obj,
                     prompt=prompt,
@@ -216,20 +217,20 @@ def edit_image():
                         logger.info("Image edited successfully with mask")
                         return jsonify({"success": True, "image": image_b64})
         else:
-            # Multiple reference images - Note: OpenAI API doesn't support multiple reference images
-            # This feature needs to be implemented differently or removed
+            # Multiple reference images - Note: GPT-image-1 supports better image understanding
+            # We'll use image variations with GPT-image-1
             additional_images = request.files.getlist("additional_images")
 
             if not additional_images:
                 return jsonify({"success": False, "error": "No additional images provided for reference mode"})
 
-            # For now, we'll use image variations instead of editing with multiple references
-            # This is a limitation of the OpenAI API
-            logger.info(f"Creating variation of image, prompt: {prompt[:100]}...")
+            # Use image variations with GPT-image-1
+            logger.info(f"Creating variation with GPT-image-1, prompt: {prompt[:100]}...")
 
             with open(image_path, "rb") as img_file:
-                # Use image variations instead (DALL-E 2 only)
+                # Use GPT-image-1 for image variations
                 result = client.images.create_variation(
+                    model="gpt-image-1",
                     image=img_file,
                     n=1,
                     size=size,

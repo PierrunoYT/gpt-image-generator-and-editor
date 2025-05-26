@@ -1,13 +1,14 @@
-# DALL-E Image Generator and Editor
+# GPT-image-1 Generator and Editor
 
-A secure web interface for OpenAI's DALL-E image generation and editing capabilities using DALL-E 3 for generation and DALL-E 2 for editing.
+A secure web interface for OpenAI's GPT-image-1 model for advanced image generation and editing capabilities with superior text rendering and high-fidelity output.
 
 ## Features
 
-- **Image Generation**: Create images from text prompts using DALL-E 3
+- **Image Generation**: Create high-fidelity images from text prompts using GPT-image-1
 - **Image Editing**:
-  - Use a mask to edit specific parts of an image (inpainting) using DALL-E 2
-  - Create variations of existing images
+  - Use a mask to edit specific parts of an image (inpainting) using GPT-image-1
+  - Create variations of existing images with better understanding
+  - Superior text rendering within images
 - **Security Features**:
   - Secure file handling with validation
   - Input sanitization and validation
@@ -15,11 +16,13 @@ A secure web interface for OpenAI's DALL-E image generation and editing capabili
   - Security headers
 - **Customization Options**:
   - Image size selection for generation:
-    - 1024x1024 (Square)
-    - 1024x1792 (Portrait)
-    - 1792x1024 (Landscape)
+    - 1024x1024 (Square) - Standard format
+    - 1024x1536 (Portrait) - Vertical format
+    - 1536x1024 (Landscape) - Horizontal format
+    - Auto - Model chooses best size based on prompt
   - Quality settings (standard, hd)
-  - Edit sizes: 256x256, 512x512, 1024x1024
+  - Edit sizes: 1024x1024, 1024x1536, 1536x1024
+  - High resolution support up to 4096x4096 pixels
   - Drag-and-drop image upload
   - Clipboard paste support for images
 
@@ -52,7 +55,7 @@ A secure web interface for OpenAI's DALL-E image generation and editing capabili
 
 ### Generate Images
 1. Enter a descriptive prompt
-2. Select model, size, quality, and background settings
+2. Select size and quality settings
 3. Click "Generate Image"
 4. Download the resulting image
 
@@ -67,8 +70,8 @@ Two editing modes are available:
 
 2. **Image Variations**:
    - Upload a reference image
-   - The system will create variations of the image
-   - Note: Multiple reference images are converted to variations due to API limitations
+   - The system will create variations of the image using GPT-image-1
+   - Better understanding of image content and context
 
 ## Requirements
 
@@ -82,9 +85,9 @@ Two editing modes are available:
 ## Limitations
 
 - Image generation can take up to 2 minutes for complex prompts
-- API usage is subject to OpenAI's pricing and rate limits
-- DALL-E 2 is used for editing (DALL-E 3 doesn't support editing yet)
-- Multiple reference images are converted to variations due to API limitations
+- API usage is subject to OpenAI's pricing and rate limits (token-based pricing)
+- GPT-image-1 is currently in limited access public preview
+- Requires organization verification to access GPT-image-1
 
 ## Security Features
 
