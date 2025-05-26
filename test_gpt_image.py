@@ -33,7 +33,18 @@ def test_app_startup():
         # Test OpenAI client initialization
         try:
             models = client.models.list()
-            print("✅ OpenAI client connection successful")
+            
+            # Print available image models
+            print("\nAvailable image models:")
+            image_models_found = False
+            for model in models.data:
+                if 'image' in model.id.lower():
+                    print(f"  - {model.id}")
+                    image_models_found = True
+            
+            if not image_models_found:
+                print("  No models with 'image' in their ID found")
+            print("\n✅ OpenAI client connection successful")
         except Exception as e:
             print(f"❌ OpenAI client connection failed: {e}")
             return False
@@ -56,7 +67,7 @@ def test_generate_endpoint():
                 "prompt": "A simple red circle on white background",
                 "model": "gpt-image-1",
                 "size": "1024x1024",
-                "quality": "standard"
+                "quality": "high"
             }
 
             print("🧪 Testing /generate endpoint...")

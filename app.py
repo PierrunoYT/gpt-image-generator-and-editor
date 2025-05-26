@@ -102,7 +102,7 @@ def generate_image():
         # Use GPT-image-1 model
         model = "gpt-image-1"
         size = data.get("size", "1024x1024")
-        quality = data.get("quality", "standard")
+        quality = data.get("quality", "high")
 
         # Validate size for GPT-image-1
         valid_sizes = ["1024x1024", "1024x1536", "1536x1024", "auto"]
@@ -110,11 +110,20 @@ def generate_image():
             size = "1024x1024"
 
         # Validate quality for GPT-image-1
-        valid_qualities = ["standard", "hd"]
+        valid_qualities = ["low", "medium", "high", "auto"]
         if quality not in valid_qualities:
-            quality = "standard"
+            quality = "high"
 
         logger.info(f"Generating image with GPT-image-1, prompt: {prompt[:100]}...")
+
+        # Log the exact parameters being sent to the API
+        logger.info("Sending parameters to API: %s", {
+            "model": model,
+            "prompt": prompt,
+            "size": size,
+            "quality": quality,
+            "n": 1
+        })
 
         # Generate image using GPT-image-1
         result = client.images.generate(
@@ -122,16 +131,15 @@ def generate_image():
             prompt=prompt,
             size=size,
             quality=quality,
-            n=1,
-            response_format="b64_json"
+            n=1
         )
 
-        # Extract base64 image data
+        # Extract URL from response (GPT-image-1 returns URL by default)
         if result.data and len(result.data) > 0:
-            image_b64 = result.data[0].b64_json
-            if image_b64:
+            image_url = result.data[0].url
+            if image_url:
                 logger.info("Image generated successfully")
-                return jsonify({"success": True, "image": image_b64})
+                return jsonify({"success": True, "image_url": image_url})
 
         logger.error("No image data in API response")
         return jsonify({"success": False, "error": "Failed to get image data from API response"})
@@ -206,16 +214,15 @@ def edit_image():
                     mask=mask_file_obj,
                     prompt=prompt,
                     n=1,
-                    size=size,
-                    response_format="b64_json"
+                    size=size
                 )
 
-                # Extract base64 image data
+                # Extract URL from response
                 if result.data and len(result.data) > 0:
-                    image_b64 = result.data[0].b64_json
-                    if image_b64:
+                    image_url = result.data[0].url
+                    if image_url:
                         logger.info("Image edited successfully with mask")
-                        return jsonify({"success": True, "image": image_b64})
+                        return jsonify({"success": True, "image_url": image_url})
         else:
             # Multiple reference images - Note: GPT-image-1 supports better image understanding
             # We'll use image variations with GPT-image-1
@@ -233,16 +240,15 @@ def edit_image():
                     model="gpt-image-1",
                     image=img_file,
                     n=1,
-                    size=size,
-                    response_format="b64_json"
+                    size=size
                 )
 
-                # Extract base64 image data
+                # Extract URL from response
                 if result.data and len(result.data) > 0:
-                    image_b64 = result.data[0].b64_json
-                    if image_b64:
+                    image_url = result.data[0].url
+                    if image_url:
                         logger.info("Image variation created successfully")
-                        return jsonify({"success": True, "image": image_b64})
+                        return jsonify({"success": True, "image_url": image_url})
 
         # If we reach here, something went wrong
         logger.error("Failed to get image data from API response")
