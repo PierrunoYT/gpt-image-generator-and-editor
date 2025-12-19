@@ -201,7 +201,6 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('prompt', document.getElementById('edit-prompt').value);
         formData.append('model', document.getElementById('edit-model').value);
         formData.append('size', document.getElementById('edit-size').value);
-        formData.append('quality', document.getElementById('edit-quality').value);
 
         if (editMode === 'single') {
             formData.append('image', imageFile.files[0]);

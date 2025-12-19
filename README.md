@@ -1,13 +1,13 @@
-# GPT-image-1 Generator and Editor
+# GPT-image-1.5 Generator and Editor
 
-A secure web interface for OpenAI's GPT-image-1 model for advanced image generation and editing capabilities with superior text rendering and high-fidelity output.
+A secure web interface for OpenAI's GPT-image-1.5 model - the latest and most advanced image generation model with superior instruction following, text rendering, and high-fidelity output.
 
 ## Features
 
-- **Image Generation**: Create high-fidelity images from text prompts using GPT-image-1
+- **Image Generation**: Create high-fidelity images from text prompts using GPT-image-1.5
 - **Image Editing**:
-  - Use a mask to edit specific parts of an image (inpainting) using GPT-image-1
-  - Create variations of existing images with better understanding
+  - Use a mask to edit specific parts of an image (inpainting) using GPT-image-1.5
+  - Edit with multiple reference images (up to 16, with first 5 at high fidelity)
   - Superior text rendering within images
 - **Security Features**:
   - Secure file handling with validation
@@ -20,7 +20,7 @@ A secure web interface for OpenAI's GPT-image-1 model for advanced image generat
     - 1024x1536 (Portrait) - Vertical format
     - 1536x1024 (Landscape) - Horizontal format
     - Auto - Model chooses best size based on prompt
-  - Quality settings (standard, hd)
+  - Quality settings (low, medium, high, auto)
   - Edit sizes: 1024x1024, 1024x1536, 1536x1024
   - High resolution support up to 4096x4096 pixels
   - Drag-and-drop image upload
@@ -86,8 +86,8 @@ Two editing modes are available:
 
 - Image generation can take up to 2 minutes for complex prompts
 - API usage is subject to OpenAI's pricing and rate limits (token-based pricing)
-- GPT-image-1 is currently in limited access public preview
-- Requires organization verification to access GPT-image-1
+- GPT-image-1.5 is the latest model (state of the art quality)
+- Requires organization verification to access GPT Image models
 
 ## Security Features
 

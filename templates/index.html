@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPT-image-1 Generator and Editor</title>
+    <title>GPT-image-1.5 Generator and Editor</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container mt-4">
-        <h1 class="text-center mb-4">GPT-image-1 Generator and Editor</h1>
+        <h1 class="text-center mb-4">GPT-image-1.5 Generator and Editor</h1>
 
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
@@ -33,7 +33,7 @@
                         <div class="col-md-3 mb-3">
                             <label for="model" class="form-label">Model</label>
                             <select class="form-select" id="model" onclick="event.stopPropagation()">
-                                <option value="gpt-image-1" selected>GPT-image-1</option>
+                                <option value="gpt-image-1.5" selected>GPT-image-1.5</option>
                             </select>
                         </div>
 
@@ -50,8 +50,10 @@
                         <div class="col-md-3 mb-3">
                             <label for="quality" class="form-label">Quality</label>
                             <select class="form-select" id="quality" onclick="event.stopPropagation()">
-                                <option value="standard" selected>Standard</option>
-                                <option value="hd">HD</option>
+                                <option value="auto" selected>Auto</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
                             </select>
                         </div>
 
@@ -96,7 +98,7 @@
                         <div class="col-md-4">
                             <label for="edit-model" class="form-label">Model</label>
                             <select class="form-select" id="edit-model" name="model" onclick="event.stopPropagation()">
-                                <option value="gpt-image-1" selected>GPT-image-1 (Editing)</option>
+                                <option value="gpt-image-1.5" selected>GPT-image-1.5 (Editing)</option>
                             </select>
                         </div>
                         <div class="col-md-4">
@@ -109,7 +111,7 @@
                         </div>
                         <div class="col-md-4">
                             <label for="edit-quality" class="form-label">Note</label>
-                            <p class="form-text text-muted">GPT-image-1 is used for editing</p>
+                            <p class="form-text text-muted">GPT-image-1.5 is used for editing</p>
                         </div>
                     </div>
 

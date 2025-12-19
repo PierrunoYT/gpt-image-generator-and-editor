@@ -24,7 +24,6 @@ app.config['MAX_CONTENT_LENGTH'] = int(os.getenv('MAX_CONTENT_LENGTH', 16 * 1024
 
 # Allowed file extensions
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
-ALLOWED_MIME_TYPES = {'image/png', 'image/jpeg', 'image/webp'}
 
 # Initialize OpenAI client
 api_key = os.getenv("OPENAI_API_KEY")
@@ -93,28 +92,28 @@ def generate_image():
     try:
         data = request.get_json()
         if not data:
-            return jsonify({"success": False, "error": "No JSON data provided"})
+            return jsonify({"success": False, "error": "No JSON data provided"}), 400
 
         prompt = sanitize_prompt(data.get("prompt"))
         if not prompt:
-            return jsonify({"success": False, "error": "Valid prompt is required"})
+            return jsonify({"success": False, "error": "Valid prompt is required"}), 400
 
-        # Use GPT-image-1 model
-        model = "gpt-image-1"
+        # Use GPT-image-1.5 model
+        model = "gpt-image-1.5"
         size = data.get("size", "1024x1024")
         quality = data.get("quality", "high")
 
-        # Validate size for GPT-image-1
+        # Validate size for GPT-image-1.5
         valid_sizes = ["1024x1024", "1024x1536", "1536x1024", "auto"]
         if size not in valid_sizes:
             size = "1024x1024"
 
-        # Validate quality for GPT-image-1
+        # Validate quality for GPT-image-1.5
         valid_qualities = ["low", "medium", "high", "auto"]
         if quality not in valid_qualities:
             quality = "high"
 
-        logger.info(f"Generating image with GPT-image-1, prompt: {prompt[:100]}...")
+        logger.info(f"Generating image with GPT-image-1.5, prompt: {prompt[:100]}...")
 
         # Log the exact parameters being sent to the API
         logger.info("Sending parameters to API: %s", {
@@ -125,7 +124,7 @@ def generate_image():
             "n": 1
         })
 
-        # Generate image using GPT-image-1
+        # Generate image using GPT-image-1.5
         result = client.images.generate(
             model=model,
             prompt=prompt,
@@ -134,19 +133,19 @@ def generate_image():
             n=1
         )
 
-        # Extract URL from response (GPT-image-1 returns URL by default)
+        # Extract base64 image from response (GPT-image-1.5 returns b64_json)
         if result.data and len(result.data) > 0:
-            image_url = result.data[0].url
-            if image_url:
+            image_b64 = result.data[0].b64_json
+            if image_b64:
                 logger.info("Image generated successfully")
-                return jsonify({"success": True, "image_url": image_url})
+                return jsonify({"success": True, "image": image_b64})
 
         logger.error("No image data in API response")
-        return jsonify({"success": False, "error": "Failed to get image data from API response"})
+        return jsonify({"success": False, "error": "Failed to get image data from API response"}), 500
 
     except Exception as e:
-        logger.error(f"Error generating image: {e}")
-        return jsonify({"success": False, "error": f"Generation failed: {str(e)}"})
+        logger.exception("Error generating image")
+        return jsonify({"success": False, "error": "Image generation failed. Please try again."}), 500
 
 @app.route("/edit", methods=["POST"])
 def edit_image():
@@ -157,13 +156,13 @@ def edit_image():
         # Validate and sanitize prompt
         prompt = sanitize_prompt(request.form.get("prompt"))
         if not prompt:
-            return jsonify({"success": False, "error": "Valid prompt is required"})
+            return jsonify({"success": False, "error": "Valid prompt is required"}), 400
 
         # Validate parameters
         size = request.form.get("size", "1024x1024")
 
-        # Validate size for GPT-image-1 editing
-        valid_sizes = ["1024x1024", "1024x1536", "1536x1024"]
+        # Validate size for GPT-image-1.5 editing
+        valid_sizes = ["1024x1024", "1024x1536", "1536x1024", "auto"]
         if size not in valid_sizes:
             size = "1024x1024"
 
@@ -173,11 +172,11 @@ def edit_image():
 
         # Validate main image
         if not image_file:
-            return jsonify({"success": False, "error": "Image file is required"})
+            return jsonify({"success": False, "error": "Image file is required"}), 400
 
         is_valid, error_msg = validate_image_file(image_file)
         if not is_valid:
-            return jsonify({"success": False, "error": f"Invalid image: {error_msg}"})
+            return jsonify({"success": False, "error": f"Invalid image: {error_msg}"}), 400
 
         # Create secure temporary directory
         temp_dir = os.path.join(tempfile.gettempdir(), "openai_image_app", secrets.token_hex(8))
@@ -193,7 +192,7 @@ def edit_image():
             # Single image with mask (inpainting)
             is_valid_mask, mask_error = validate_image_file(mask_file)
             if not is_valid_mask:
-                return jsonify({"success": False, "error": f"Invalid mask: {mask_error}"})
+                return jsonify({"success": False, "error": f"Invalid mask: {mask_error}"}), 400
 
             mask_filename = secure_filename(f"mask_{int(time.time())}_{secrets.token_hex(4)}.png")
             mask_path = os.path.join(temp_dir, mask_filename)
@@ -202,14 +201,14 @@ def edit_image():
 
             # Verify files exist
             if not os.path.exists(image_path) or not os.path.exists(mask_path):
-                return jsonify({"success": False, "error": "Failed to save temporary files"})
+                return jsonify({"success": False, "error": "Failed to save temporary files"}), 500
 
-            logger.info(f"Editing image with GPT-image-1 and mask, prompt: {prompt[:100]}...")
+            logger.info(f"Editing image with GPT-image-1.5 and mask, prompt: {prompt[:100]}...")
 
             with open(image_path, "rb") as img_file, open(mask_path, "rb") as mask_file_obj:
-                # Use GPT-image-1 for editing
+                # Use GPT-image-1.5 for editing
                 result = client.images.edit(
-                    model="gpt-image-1",
+                    model="gpt-image-1.5",
                     image=img_file,
                     mask=mask_file_obj,
                     prompt=prompt,
@@ -217,46 +216,68 @@ def edit_image():
                     size=size
                 )
 
-                # Extract URL from response
+                # Extract base64 image from response
                 if result.data and len(result.data) > 0:
-                    image_url = result.data[0].url
-                    if image_url:
+                    image_b64 = result.data[0].b64_json
+                    if image_b64:
                         logger.info("Image edited successfully with mask")
-                        return jsonify({"success": True, "image_url": image_url})
+                        return jsonify({"success": True, "image": image_b64})
         else:
-            # Multiple reference images - Note: GPT-image-1 supports better image understanding
-            # We'll use image variations with GPT-image-1
+            # Multiple reference images mode - use images.edit with multiple images
+            # GPT-image-1.5 supports up to 16 input images with first 5 preserved at high fidelity
             additional_images = request.files.getlist("additional_images")
 
             if not additional_images:
-                return jsonify({"success": False, "error": "No additional images provided for reference mode"})
+                return jsonify({"success": False, "error": "No additional images provided for reference mode"}), 400
 
-            # Use image variations with GPT-image-1
-            logger.info(f"Creating variation with GPT-image-1, prompt: {prompt[:100]}...")
+            # Save additional images
+            additional_paths = []
+            for i, add_img in enumerate(additional_images[:15]):  # Max 15 additional (16 total with main)
+                is_valid_add, add_error = validate_image_file(add_img)
+                if not is_valid_add:
+                    return jsonify({"success": False, "error": f"Invalid additional image {i+1}: {add_error}"}), 400
+                
+                add_filename = secure_filename(f"additional_{i}_{int(time.time())}_{secrets.token_hex(4)}.png")
+                add_path = os.path.join(temp_dir, add_filename)
+                add_img.save(add_path)
+                temp_files.append(add_path)
+                additional_paths.append(add_path)
 
-            with open(image_path, "rb") as img_file:
-                # Use GPT-image-1 for image variations
-                result = client.images.create_variation(
-                    model="gpt-image-1",
-                    image=img_file,
+            logger.info(f"Editing with GPT-image-1.5 using {len(additional_paths) + 1} reference images, prompt: {prompt[:100]}...")
+
+            # Open all image files for the API call
+            image_files = [open(image_path, "rb")]
+            for add_path in additional_paths:
+                image_files.append(open(add_path, "rb"))
+
+            try:
+                # Use GPT-image-1.5 edit with multiple images
+                result = client.images.edit(
+                    model="gpt-image-1.5",
+                    image=image_files,
+                    prompt=prompt,
                     n=1,
                     size=size
                 )
 
-                # Extract URL from response
+                # Extract base64 image from response
                 if result.data and len(result.data) > 0:
-                    image_url = result.data[0].url
-                    if image_url:
-                        logger.info("Image variation created successfully")
-                        return jsonify({"success": True, "image_url": image_url})
+                    image_b64 = result.data[0].b64_json
+                    if image_b64:
+                        logger.info("Image edited successfully with multiple references")
+                        return jsonify({"success": True, "image": image_b64})
+            finally:
+                # Close all opened files
+                for f in image_files:
+                    f.close()
 
         # If we reach here, something went wrong
         logger.error("Failed to get image data from API response")
-        return jsonify({"success": False, "error": "Failed to get image data from API response"})
+        return jsonify({"success": False, "error": "Failed to get image data from API response"}), 500
 
     except Exception as e:
-        logger.error(f"Error editing image: {e}")
-        return jsonify({"success": False, "error": f"Edit failed: {str(e)}"})
+        logger.exception("Error editing image")
+        return jsonify({"success": False, "error": "Image editing failed. Please try again."}), 500
     finally:
         # Clean up all temporary files
         for path in temp_files:
